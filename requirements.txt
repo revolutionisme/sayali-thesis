@@ -1,1 +1,4 @@
 pandas
+openpyxl
+xlrd >= 1.0.0
+xlwt
