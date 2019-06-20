@@ -24,6 +24,12 @@ for col in df1:
 df = df.reset_index()
 #print(df)
 
+
+
+"""
+    Calculating log series 
+"""
+
 data_other = [{'t1': 1, 't2': 4, 't3': 7, 't4': 10},
               {'t1': 2, 't2': 5, 't3': 8, 't4': 11},
               {'t1': 3, 't2': 6, 't3': 9, 't4': 12}]

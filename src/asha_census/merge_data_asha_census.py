@@ -33,10 +33,10 @@ dhs_df = pd.read_stata('data/st_dist_dhs_2.dta')
 # print(asha_df.s_nrhm.unique())
 # print(dhs_df.s_nrhm.unique())
 
-# print(len(asha_df.sdist.unique()))
-# print(len(dhs_df.sdist.unique()))
-# print(asha_df.sdist.unique())
-# print(dhs_df.sdist.unique())
+print(len(asha_df.sdist.unique()))
+print(len(dhs_df.sdist.unique()))
+print(asha_df.sdist.unique())
+print(dhs_df.sdist.unique())
 
 # print(asha_df[['s_nrhm', 'state', 'sdist']])
 # print(dhs_df[['s_nrhm', 's_dhs', 'sdist']])
@@ -49,10 +49,10 @@ dhs_df['sdist'] = dhs_df['sdist'].apply(lambda x: fix_spelling(x, asha_df['sdist
 # print(asha_df.s_nrhm.unique())
 # print(dhs_df.s_nrhm.unique())
 
-# print(len(asha_df.sdist.unique()))
-# print(len(dhs_df.sdist.unique()))
-# print(asha_df.sdist.unique())
-# print(dhs_df.sdist.unique())
+print(len(asha_df.sdist.unique()))
+print(len(dhs_df.sdist.unique()))
+print(asha_df.sdist.unique())
+print(dhs_df.sdist.unique())
 
 # print(asha_df[['s_nrhm', 'state', 'sdist']])
 # print(dhs_df[['s_nrhm', 's_dhs', 'sdist']])
@@ -69,6 +69,8 @@ census_district_df = pd.read_excel('data/census_pop_district_SC_ST.xlsx')
 # census_district_df['TRU'].apply(lambda x: fix_spelling(x, census_district_df['TRU']))
 
 normalized_census_df = get_normalized_census(census_district_df)
+print(len(normalized_census_df.Name.unique()))
+
 normalized_census_df = normalized_census_df[normalized_census_df.state_name != 'NA']
 # print(normalized_census_df[['state_name', 'Name', 'Level']])
 
@@ -77,7 +79,7 @@ normalized_census_df = normalized_census_df[normalized_census_df.state_name != '
 
 
 # print(normalized_census_df.Name.unique())
-# print(len(normalized_census_df.Name.unique()))
+print(len(normalized_census_df.Name.unique()))
 
 
 # print(normalized_census_df[['state_name', 'Name', 'Level']])
@@ -95,6 +97,7 @@ merged_asha_dhs_with_census_df = pd.merge(merged_asha_dhs_df, normalized_census_
 
 # print(merged_asha_dhs_with_census_df)
 
+merged_asha_dhs_with_census_df.to_stata('output.dta')
 merged_asha_dhs_with_census_df.to_excel('output.xlsx')
 merged_asha_dhs_with_census_df.to_excel('output.xls')
 merged_asha_dhs_with_census_df.to_csv('output.csv')
