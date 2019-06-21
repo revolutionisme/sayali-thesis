@@ -1,18 +1,20 @@
 import pandas as pd
 from math import log
-
+from pandas.util.testing import assert_frame_equal
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("KLM")
+
+
 # logger.setLevel(logging.DEBUG)
 
 def get_partial_klm_sum(df):
     colsum = df.sum(axis=0)
     rowsum = df.sum(axis=1)
 
-    #print("Rowsum, colsum")
-    #print(colsum, rowsum)
+    # print("Rowsum, colsum")
+    # print(colsum, rowsum)
     klm = 0.0
 
     if rowsum.sum() != colsum.sum():
@@ -21,15 +23,15 @@ def get_partial_klm_sum(df):
     totalsum = rowsum.sum()
 
     for colindex, col in df.iteritems():
-        #print(type(col))
-        #print(col)
+        # print(type(col))
+        # print(col)
         for rowindex, item in col.items():
-            #print("Inside inner loop")
-            #print(rowindex, colindex, item, colsum[colindex])
+            # print("Inside inner loop")
+            # print(rowindex, colindex, item, colsum[colindex])
             pre = item / colsum[colindex]
             klm = klm + (pre * log(pre / (rowsum[rowindex] / totalsum)))
 
-    return colsum, rowsum, klm, df
+    return colsum, rowsum, totalsum, klm
 
 
 def get_mi_klm_sum(idf, hdf, odf, icolsum, hcolsum, ocolsum):
@@ -43,15 +45,43 @@ def get_mi_klm_sum(idf, hdf, odf, icolsum, hcolsum, ocolsum):
                 # print(f"COlumns - {i[0]}, {h[0]}, {ival}, {hval}")
         # print(f"oColumn - {o[1].tolist()}, {type(o[1])}")
 
-        data = {o[0]: o[1].tolist(), "mixed": col_list}
         for oval, ihval in zip(o[1].tolist(), col_list):
-            #print(oval, ihval, ocolsum[o[0]])
+            # print(oval, ihval, ocolsum[o[0]])
             prefix = (oval / ocolsum[o[0]])
             mi_klm = mi_klm + prefix * log(prefix / ihval)
     #    print(f"data - {data}")
     #    print(f"Data {i}, {h}, {o}")
-    print(mi_klm)
+    # print(mi_klm)
     return mi_klm
+
+
+def get_j_klm_sum(odf, ototalsum, ocolsum, irowsum, itotalsum, hrowsum, htotalsum):
+    required_val_tuple_list = []
+    for rowindex, row in odf.iterrows():
+        #        print(f"{rowindex} -- \n{row} -- \n{row.sum()}, {ototalsum}")
+        denom = row.sum() / ototalsum
+        presum = 0.0
+        for colvalues, colsumvalue in zip(row.items(), ocolsum.items()):
+            presum = presum + (colvalues[1] / colsumvalue[1])
+        #            print(f"inside {colvalues[1]}, {colsumvalue[1]}, {presum}")
+        required_val_tuple_list.append((presum, denom))
+
+    #    print(required_val_tuple_list)
+
+    nom = []
+    for ival in irowsum:
+        for hval in hrowsum:
+            nom.append((ival * hval) / (itotalsum * htotalsum))
+    #            print(ival, hval)
+
+    #    print(nom)
+
+    j_klm_sum = 0.0
+    for ovals, nomval in zip(required_val_tuple_list, nom):
+        j_klm_sum = j_klm_sum + ovals[0] * log(nomval / ovals[1])
+    #        print(ovals[0], ovals[1], nomval)
+
+    return j_klm_sum
 
 
 def add_row_col_sum(df):
@@ -61,38 +91,49 @@ def add_row_col_sum(df):
     return df
 
 
-outcomes = [{'t1': 1, 't2': 5},
-            {'t1': 2, 't2': 6},
-            {'t1': 3, 't2': 7},
-            {'t1': 4, 't2': 8}]
+def run():
+    outcomes = [{'t1': 1, 't2': 5},
+                {'t1': 2, 't2': 6},
+                {'t1': 3, 't2': 7},
+                {'t1': 4, 't2': 8}]
 
-income = [{'t1': 1, 't2': 3},
-          {'t1': 2, 't2': 4}]
+    income = [{'t1': 1, 't2': 3},
+              {'t1': 2, 't2': 4}]
 
-health = [{'t1': 5, 't2': 7},
-          {'t1': 6, 't2': 8}]
+    health = [{'t1': 5, 't2': 7},
+              {'t1': 6, 't2': 8}]
 
-odf = pd.DataFrame(outcomes)
-idf = pd.DataFrame(income)
-hdf = pd.DataFrame(health)
-
-ocolsum, orowsum, oklm, updated_odf = get_partial_klm_sum(odf)
-icolsum, irowsum, iklm, updated_idf = get_partial_klm_sum(idf)
-hcolsum, hrowsum, hklm, updated_hdf = get_partial_klm_sum(hdf)
-
-print(oklm, iklm, hklm)
-
-logger.info(f"Outcome DF - \n {updated_odf}")
-logger.info(f"Income DF - \n {updated_idf}")
-logger.info(f"Health DF - \n {updated_hdf}")
+    odf = pd.DataFrame(outcomes)
+    idf = pd.DataFrame(income)
+    hdf = pd.DataFrame(health)
 
 
-mi_klm_sum = get_mi_klm_sum(odf, hdf, odf, icolsum, hcolsum, ocolsum)
+    ocolsum, orowsum, ototalsum, oklm = get_partial_klm_sum(odf)
+    icolsum, irowsum, itotalsum, iklm = get_partial_klm_sum(idf)
+    hcolsum, hrowsum, htotalsum, hklm = get_partial_klm_sum(hdf)
 
-print(f"iklm - {iklm}, hklm - {hklm}")
+    # todo:  uncomment before sending to sayali
+    #assert ocolsum.equals(icolsum) and icolsum.equals(hcolsum) and ocolsum.equals(hcolsum)
+    #assert ototalsum == itotalsum and itotalsum == htotalsum and ototalsum == htotalsum
 
-print(f"MI sum -> {mi_klm_sum}")
+    print(oklm, iklm, hklm)
 
-total_klm_sum = iklm + hklm + mi_klm_sum
+    logger.info(f"Outcome DF - \n {odf}, \n{ocolsum}, \n{orowsum}")
+    logger.info(f"Income DF - \n {idf}, \n{icolsum}, \n{irowsum}")
+    logger.info(f"Health DF - \n {hdf}, \n{hcolsum}, \n{hrowsum}")
 
-print(f"Total KLM Sum -> {total_klm_sum}")
+    mi_klm_sum = get_mi_klm_sum(odf, hdf, odf, icolsum, hcolsum, ocolsum)
+
+    j_klm_sum = get_j_klm_sum(odf, ototalsum, ocolsum, irowsum, itotalsum, hrowsum, htotalsum)
+
+    print(f"I klm sum -> {iklm}")
+    print(f"H klm sum -> {hklm}")
+    print(f"MI klm sum -> {mi_klm_sum}")
+    print(f"J klm sum -> {j_klm_sum}")
+
+    total_klm_sum = iklm + hklm + mi_klm_sum + j_klm_sum
+
+    print(f"Total KLM Sum -> {total_klm_sum}")
+
+
+run()
