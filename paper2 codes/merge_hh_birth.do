@@ -13,3 +13,4 @@ save mer_hh_birth,replace
 tab b4 if b7>=6 & b7<=84
 
 
+*this is step one
