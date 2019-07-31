@@ -100,11 +100,11 @@ def run():
                 {'t1': 3, 't2': 7},
                 {'t1': 4, 't2': 8}]
 
-    income = [{'t1': 1, 't2': 3},
-              {'t1': 2, 't2': 4}]
+    income = [{'t1': 3, 't2': 11},
+              {'t1': 7, 't2': 15}]
 
-    health = [{'t1': 5, 't2': 7},
-              {'t1': 6, 't2': 8}]
+    health = [{'t1': 4, 't2': 12},
+              {'t1': 6, 't2': 14}]
 
     odf = pd.DataFrame(outcomes)
     idf = pd.DataFrame(income)
