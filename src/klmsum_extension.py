@@ -39,12 +39,15 @@ def get_mi_klm_sum(idf, hdf, odf, icolsum, hcolsum, ocolsum):
     for i, h, o in zip(idf.iteritems(), hdf.iteritems(), odf.iteritems()):
         # print(f"Data - {i}, {icolsum[i[0]]}")
         col_list = []
+        # print(f"List len i  - {i[1]}")
+        # print(f"List len h - {h[1]}")
+
         for irow, ival in i[1].items():
             for hrow, hval in h[1].items():
                 col_list.append((ival * hval) / (icolsum[i[0]] * hcolsum[i[0]]))
                 # print(f"COlumns - {i[0]}, {h[0]}, {ival}, {hval}")
         # print(f"oColumn - {o[1].tolist()}, {type(o[1])}")
-
+        print(f"List len - {len(col_list)}")
         for oval, ihval in zip(o[1].tolist(), col_list):
             # print(oval, ihval, ocolsum[o[0]])
             prefix = (oval / ocolsum[o[0]])
@@ -97,11 +100,11 @@ def run():
                 {'t1': 3, 't2': 7},
                 {'t1': 4, 't2': 8}]
 
-    income = [{'t1': 1, 't2': 3},
-              {'t1': 2, 't2': 4}]
+    income = [{'t1': 3, 't2': 11},
+              {'t1': 7, 't2': 15}]
 
-    health = [{'t1': 5, 't2': 7},
-              {'t1': 6, 't2': 8}]
+    health = [{'t1': 4, 't2': 12},
+              {'t1': 6, 't2': 14}]
 
     odf = pd.DataFrame(outcomes)
     idf = pd.DataFrame(income)
@@ -122,7 +125,7 @@ def run():
     logger.info(f"Income DF - \n {idf}, \n{icolsum}, \n{irowsum}")
     logger.info(f"Health DF - \n {hdf}, \n{hcolsum}, \n{hrowsum}")
 
-    mi_klm_sum = get_mi_klm_sum(odf, hdf, odf, icolsum, hcolsum, ocolsum)
+    mi_klm_sum = get_mi_klm_sum(idf, hdf, odf, icolsum, hcolsum, ocolsum)
 
     j_klm_sum = get_j_klm_sum(odf, ototalsum, ocolsum, irowsum, itotalsum, hrowsum, htotalsum)
 
